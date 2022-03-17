@@ -8,8 +8,8 @@ import java.util.List;
 public class BankStatementCSVParser {
     private static final DateTimeFormatter DATE_PATTERN = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    public BankTransaction parseFromCSV(String line) {
-        String[] columns = line.split(",");
+    public BankTransaction parseFromCSV(String line, String separator) {
+        String[] columns = line.split(separator);
 
         LocalDate date = LocalDate.parse(columns[0], DATE_PATTERN);
         double amount = Double.parseDouble(columns[1]);
@@ -21,9 +21,8 @@ public class BankStatementCSVParser {
     public List<BankTransaction> parseLinesFromCSV(List<String> lines) {
         List<BankTransaction> bankTransactions = new ArrayList<>();
         for (String line : lines) {
-            bankTransactions.add(parseFromCSV(line));
+            bankTransactions.add(parseFromCSV(line, ","));
         }
         return bankTransactions;
     }
-
 }
