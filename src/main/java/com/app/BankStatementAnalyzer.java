@@ -24,6 +24,13 @@ public class BankStatementAnalyzer {
         List<BankTransaction> bankTransactions = bankStatementCSVParser.parseLinesFromCSV(Files.readAllLines(path));
         BankStatementProcessor bankStatementProcessor = new BankStatementProcessor(bankTransactions);
         collectSummary(bankStatementProcessor);
+
+        System.out.println("Транзакции за период с максимальной суммой:");
+        bankStatementProcessor.findMaxBankTransactionsForPeriod(LocalDate.of(2021, 12, 1), LocalDate.of(2021, 12, 31))
+                .forEach(System.out::println);
+        System.out.println("Транзакции за период с минимальной суммой:");
+        bankStatementProcessor.findMinBankTransactionsForPeriod(LocalDate.of(2021, 12, 1), LocalDate.of(2021, 12, 31))
+                .forEach(System.out::println);
     }
 
     private void collectSummary(BankStatementProcessor bankStatementProcessor) {
