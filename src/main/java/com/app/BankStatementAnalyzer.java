@@ -22,8 +22,15 @@ public class BankStatementAnalyzer {
     public static void main(String[] args) throws IOException {
         BankStatementAnalyzer bankStatementAnalyzer = new BankStatementAnalyzer();
         bankStatementAnalyzer.analyze("transactions.txt", new BankStatementCSVParser());
-        bankStatementAnalyzer.groupMonth("transactions.txt");
-        bankStatementAnalyzer.groupCategory("transactions.txt");
+        bankStatementAnalyzer.groupingMonths("transactions.txt");
+        bankStatementAnalyzer.groupingCategories("transactions.txt");
+
+        for (Map.Entry<String, Map<String, Double>> month : bankStatementAnalyzer.groupingMonthsForCategories("transactions.txt").entrySet()) {
+            System.out.println("-" + month.getKey());
+            for (Map.Entry<String, Double> category : month.getValue().entrySet()) {
+                System.out.println("----" + category.getKey() + " " + category.getValue());
+            }
+        }
     }
 
     public void analyze(String fileName, BankStatementParser bankStatementParser) throws IOException {
@@ -46,12 +53,12 @@ public class BankStatementAnalyzer {
         System.out.println("Category - " + bankStatementProcessor.calculateTotalForCategory("pepsi"));
     }
 
-    private void groupMonth(String fileName) throws IOException {
+    private void groupingMonths(String fileName) throws IOException {
         Map<String, Double> groupMonths = groupingAllBanksTransactions(fileName, bankTransaction -> bankTransaction.getDate().format(DateTimeFormatter.ofPattern("MM.yyyy")));
         groupMonths.forEach((k, v) -> System.out.printf("Месяц(%s) - %.3f%n", k.toUpperCase(Locale.ENGLISH), v));
     }
 
-    private void groupCategory(String fileName) throws IOException {
+    private void groupingCategories(String fileName) throws IOException {
         Map<String, Double> groupMonths = groupingAllBanksTransactions(fileName, BankTransaction::getDescription);
         groupMonths.forEach((k, v) -> System.out.printf("Категория(%s) - %.3f%n", k.toUpperCase(Locale.ENGLISH), v));
     }
@@ -60,5 +67,13 @@ public class BankStatementAnalyzer {
         Path path = Paths.get(DIRECTORY + fileName);
         List<BankTransaction> bankTransactions = bankStatementCSVParser.parseLinesFromCSV(Files.readAllLines(path));
         return bankTransactions.stream().collect(Collectors.groupingBy(grouping, Collectors.summingDouble(BankTransaction::getAmount)));
+    }
+
+    private Map<String, Map<String, Double>> groupingMonthsForCategories(String fileName) throws IOException {
+        Path path = Paths.get(DIRECTORY + fileName);
+        List<BankTransaction> bankTransactions = bankStatementCSVParser.parseLinesFromCSV(Files.readAllLines(path));
+        return bankTransactions.stream()
+                .collect(Collectors.groupingBy(bankTransaction -> bankTransaction.getDate().format(DateTimeFormatter.ofPattern("MM.yyyy")),
+                        Collectors.groupingBy(BankTransaction::getDescription, Collectors.summingDouble(BankTransaction::getAmount))));
     }
 }
