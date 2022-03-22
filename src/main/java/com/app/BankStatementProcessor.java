@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class BankStatementProcessor {
     private final List<BankTransaction> bankTransactions;
@@ -55,5 +58,29 @@ public class BankStatementProcessor {
             }
         }
         return listMaxBankTransactions;
+    }
+
+    public List<BankTransaction> findTransactions(BankTransactionFilter bankTransactionFilter) {
+        return bankTransactions.stream()
+                .filter(bankTransactionFilter::test)
+                .collect(Collectors.toList());
+    }
+
+    public Map<String, Double> groupingMonths() {
+        return groupingAllBanksTransactions(bankTransaction -> bankTransaction.getDate().format(DateTimeFormatter.ofPattern("MM.yyyy")));
+    }
+
+    public Map<String, Double> groupingCategories() {
+        return groupingAllBanksTransactions(BankTransaction::getDescription);
+    }
+
+    public Map<String, Map<String, Double>> groupingMonthsForCategories() {
+        return bankTransactions.stream()
+                .collect(Collectors.groupingBy(bankTransaction -> bankTransaction.getDate().format(DateTimeFormatter.ofPattern("MM.yyyy")),
+                        Collectors.groupingBy(BankTransaction::getDescription, Collectors.summingDouble(BankTransaction::getAmount))));
+    }
+
+    private Map<String, Double> groupingAllBanksTransactions(Function<BankTransaction, String> grouping) {
+        return bankTransactions.stream().collect(Collectors.groupingBy(grouping, Collectors.summingDouble(BankTransaction::getAmount)));
     }
 }
