@@ -12,8 +12,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class BankStatementAnalyzer {
     private static final String DIRECTORY = "src/main/storage/";
@@ -22,15 +20,7 @@ public class BankStatementAnalyzer {
     public static void main(String[] args) throws IOException {
         BankStatementAnalyzer bankStatementAnalyzer = new BankStatementAnalyzer();
         bankStatementAnalyzer.analyze("transactions.txt", new BankStatementCSVParser());
-        bankStatementAnalyzer.groupingMonths("transactions.txt");
-        bankStatementAnalyzer.groupingCategories("transactions.txt");
 
-        for (Map.Entry<String, Map<String, Double>> month : bankStatementAnalyzer.groupingMonthsForCategories("transactions.txt").entrySet()) {
-            System.out.println("-" + month.getKey());
-            for (Map.Entry<String, Double> category : month.getValue().entrySet()) {
-                System.out.println("----" + category.getKey() + " " + category.getValue());
-            }
-        }
     }
 
     public void analyze(String fileName, BankStatementParser bankStatementParser) throws IOException {
@@ -45,6 +35,23 @@ public class BankStatementAnalyzer {
         System.out.println("Транзакции за период с минимальной суммой:");
         bankStatementProcessor.findMinBankTransactionsForPeriod(LocalDate.of(2021, 12, 1), LocalDate.of(2021, 12, 31))
                 .forEach(System.out::println);
+
+        bankStatementProcessor.groupingMonths().forEach((k, v) -> System.out.printf("Месяц(%s) - %.3f%n", k.toUpperCase(Locale.ENGLISH), v));
+        bankStatementProcessor.groupingCategories().forEach((k, v) -> System.out.printf("Категория(%s) - %.3f%n", k.toUpperCase(Locale.ENGLISH), v));
+
+        for (Map.Entry<String, Map<String, Double>> month : bankStatementProcessor.groupingMonthsForCategories().entrySet()) {
+            System.out.println("-" + month.getKey());
+            for (Map.Entry<String, Double> category : month.getValue().entrySet()) {
+                System.out.println("----" + category.getKey() + " " + category.getValue());
+            }
+        }
+
+        System.out.println("Amount >= 1000");
+        bankStatementProcessor.findTransactions(bankTransaction -> bankTransaction.getAmount() >= 1000).forEach(System.out::println);
+        System.out.println("Amount >= 1000 in month 12.2021");
+        bankStatementProcessor.findTransactions(bankTransaction -> bankTransaction.getAmount() >= 1000
+                        && bankTransaction.getDate().format(DateTimeFormatter.ofPattern("MM.yyyy")).equals("12.2021"))
+                .forEach(System.out::println);
     }
 
     private void collectSummary(BankStatementProcessor bankStatementProcessor) {
@@ -53,27 +60,5 @@ public class BankStatementAnalyzer {
         System.out.println("Category - " + bankStatementProcessor.calculateTotalForCategory("pepsi"));
     }
 
-    private void groupingMonths(String fileName) throws IOException {
-        Map<String, Double> groupMonths = groupingAllBanksTransactions(fileName, bankTransaction -> bankTransaction.getDate().format(DateTimeFormatter.ofPattern("MM.yyyy")));
-        groupMonths.forEach((k, v) -> System.out.printf("Месяц(%s) - %.3f%n", k.toUpperCase(Locale.ENGLISH), v));
-    }
 
-    private void groupingCategories(String fileName) throws IOException {
-        Map<String, Double> groupMonths = groupingAllBanksTransactions(fileName, BankTransaction::getDescription);
-        groupMonths.forEach((k, v) -> System.out.printf("Категория(%s) - %.3f%n", k.toUpperCase(Locale.ENGLISH), v));
-    }
-
-    private Map<String, Double> groupingAllBanksTransactions(String fileName, Function<BankTransaction, String> grouping) throws IOException {
-        Path path = Paths.get(DIRECTORY + fileName);
-        List<BankTransaction> bankTransactions = bankStatementCSVParser.parseLinesFromCSV(Files.readAllLines(path));
-        return bankTransactions.stream().collect(Collectors.groupingBy(grouping, Collectors.summingDouble(BankTransaction::getAmount)));
-    }
-
-    private Map<String, Map<String, Double>> groupingMonthsForCategories(String fileName) throws IOException {
-        Path path = Paths.get(DIRECTORY + fileName);
-        List<BankTransaction> bankTransactions = bankStatementCSVParser.parseLinesFromCSV(Files.readAllLines(path));
-        return bankTransactions.stream()
-                .collect(Collectors.groupingBy(bankTransaction -> bankTransaction.getDate().format(DateTimeFormatter.ofPattern("MM.yyyy")),
-                        Collectors.groupingBy(BankTransaction::getDescription, Collectors.summingDouble(BankTransaction::getAmount))));
-    }
 }
