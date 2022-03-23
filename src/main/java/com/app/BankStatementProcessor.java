@@ -35,6 +35,18 @@ public class BankStatementProcessor {
                 .reduce(Double::sum).orElse(0d);
     }
 
+    public double summationWithAmount(double amount) {
+        return summarizeTransactions((summa, bankTransaction) -> bankTransaction.getAmount() >= amount ? bankTransaction.getAmount() : 0);
+    }
+
+    public double summarizeTransactions(BankTransactionSummarizer bankTransactionSummarizer) {
+        double result = 0;
+        for (BankTransaction bankTransaction : bankTransactions) {
+            result += bankTransactionSummarizer.summarize(result, bankTransaction);
+        }
+        return result;
+    }
+
     public List<BankTransaction> findMaxBankTransactionsForPeriod(LocalDate startDate, LocalDate endDate) {
         return findBankTransactions(startDate, endDate, (maxAmount, bankAmount) -> maxAmount < bankAmount, Double.MIN_VALUE);
     }

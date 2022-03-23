@@ -52,6 +52,8 @@ public class BankStatementAnalyzer {
         bankStatementProcessor.findTransactions(bankTransaction -> bankTransaction.getAmount() >= 1000
                         && bankTransaction.getDate().format(DateTimeFormatter.ofPattern("MM.yyyy")).equals("12.2021"))
                 .forEach(System.out::println);
+
+        System.out.printf("Суммирование с определенной суммы: %.3f", bankStatementProcessor.summationWithAmount(1000));
     }
 
     private void collectSummary(BankStatementProcessor bankStatementProcessor) {
@@ -59,6 +61,4 @@ public class BankStatementAnalyzer {
         System.out.println("Month - " + bankStatementProcessor.calculateTotalInMonth(LocalDate.of(2021, 12, 1)));
         System.out.println("Category - " + bankStatementProcessor.calculateTotalForCategory("pepsi"));
     }
-
-
 }
