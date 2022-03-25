@@ -1,6 +1,6 @@
 package com.app.parser;
 
-import com.app.BankTransaction;
+import com.app.model.BankTransaction;
 
 import java.util.List;
 

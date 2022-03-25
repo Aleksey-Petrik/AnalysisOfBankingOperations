@@ -1,7 +1,7 @@
 package com.app.parser;
 
 import com.app.BankStatementProcessor;
-import com.app.BankTransaction;
+import com.app.model.BankTransaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
