@@ -1,5 +1,6 @@
 package com.app;
 
+import com.app.model.BankTransaction;
 import com.app.parser.BankStatementCSVParser;
 import com.app.parser.BankStatementParser;
 
