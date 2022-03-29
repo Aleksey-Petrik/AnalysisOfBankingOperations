@@ -2,6 +2,7 @@ package com.app;
 
 import com.app.export.Exporter;
 import com.app.export.HtmlExporter;
+import com.app.export.XmlExporter;
 import com.app.model.BankTransaction;
 import com.app.parser.BankStatementCSVParser;
 import com.app.parser.BankStatementParser;
@@ -58,8 +59,11 @@ public class BankStatementAnalyzer {
 
         System.out.printf("Суммирование с определенной суммы: %.3f", bankStatementProcessor.summationWithAmount(1000));
 
-        Exporter exporter = new HtmlExporter();
-        System.out.println(exporter.export(bankStatementProcessor.getSummaryStatistics()));
+        Exporter html = new HtmlExporter();
+        System.out.println(html.export(bankStatementProcessor.getSummaryStatistics()));
+
+        Exporter xml = new XmlExporter();
+        System.out.println(xml.export(bankStatementProcessor.getSummaryStatistics()));
     }
 
     private void collectSummary(BankStatementProcessor bankStatementProcessor) {
