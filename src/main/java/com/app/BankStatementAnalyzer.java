@@ -2,6 +2,7 @@ package com.app;
 
 import com.app.export.Exporter;
 import com.app.export.HtmlExporter;
+import com.app.export.JsonExporter;
 import com.app.export.XmlExporter;
 import com.app.model.BankTransaction;
 import com.app.parser.BankStatementCSVParser;
@@ -64,6 +65,9 @@ public class BankStatementAnalyzer {
 
         Exporter xml = new XmlExporter();
         System.out.println(xml.export(bankStatementProcessor.getSummaryStatistics()));
+
+        Exporter json = new JsonExporter();
+        System.out.println(json.export(bankStatementProcessor.getSummaryStatistics()));
     }
 
     private void collectSummary(BankStatementProcessor bankStatementProcessor) {

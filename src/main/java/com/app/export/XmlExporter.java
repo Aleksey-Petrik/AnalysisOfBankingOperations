@@ -6,14 +6,14 @@ public class XmlExporter implements Exporter {
     @Override
     public String export(SummaryStatistics summaryStatistics) {
         StringBuilder xml = new StringBuilder();
-        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-                .append("<statistic>")
-                .append("title lang=\"en\">Bank Transaction Report</title>")
-                .append(String.format("<sum>%.3f</sum>", summaryStatistics.getSum()))
-                .append(String.format("<average>%.3f</average>", summaryStatistics.getAverage()))
-                .append(String.format("<min>%.3f</min>", summaryStatistics.getMax()))
-                .append(String.format("<max>%.3f</max>", summaryStatistics.getMin()))
-                .append("</statistic>");
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+                .append("<statistic>\n")
+                .append("\ttitle lang=\"en\">Bank Transaction Report</title>\n")
+                .append(String.format("\t<sum>%.3f</sum>%n", summaryStatistics.getSum()))
+                .append(String.format("\t<average>%.3f</average>%n", summaryStatistics.getAverage()))
+                .append(String.format("\t<min>%.3f</min>%n", summaryStatistics.getMax()))
+                .append(String.format("\t<max>%.3f</max>%n", summaryStatistics.getMin()))
+                .append("</statistic>\n");
         return xml.toString();
     }
 }
